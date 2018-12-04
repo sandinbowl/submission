@@ -1,0 +1,69 @@
+// Hint: Crib from your model_view_projection.vs
+// Layout:
+//                                         Indicate that we're dealing with
+//                                         triangles in CCW order and using a
+//                                         sane spacing.
+layout(triangles, equal_spacing, ccw) in;
+// Uniforms
+uniform mat4 view;
+uniform mat4 proj;
+uniform float animation_seconds;
+uniform bool mercury;
+uniform bool venus;
+uniform bool earth;
+uniform bool mars;
+uniform bool jupiter;
+uniform bool saturn;
+uniform bool uranus;
+uniform bool neptune;
+// Inputs:
+//                    array of 3 3D patch corner positions
+in vec4 pos_es_in[];
+// Outputs:
+//                   projected, view, and model transformed 3D position
+out vec4 pos_fs_in;
+//                        view and model transformed 3D position
+out vec4 view_pos_fs_in;
+//                      view and model transformed 3D normal
+out vec3 normal_fs_in;
+//                      3D position _before_ applying model, view or projection
+//                      transformations (e.g., point on unit sphere)
+out vec3 sphere_fs_in;
+// expects: interpolat, model, 
+void main()
+{
+  /////////////////////////////////////////////////////////////////////////////
+  // Replace with your code 
+  //pos_fs_in = interpolate(gl_TessCoord, pos_es_in[0], pos_es_in[1], pos_es_in[2]);
+  //gl_Position = pos_fs_in;
+
+  vec4 s = interpolate(gl_TessCoord, pos_es_in[0], pos_es_in[1], pos_es_in[2]);
+  sphere_fs_in = normalize(s.xyz);
+  vec4 snew = vec4(sphere_fs_in, 1.0);
+  
+  if (mercury) {
+	snew = uniform_scale(0.1) *snew; 
+  } else if (venus) {
+	snew = uniform_scale(0.15) *snew; 
+  } else if (earth) {
+	snew = uniform_scale(0.2) *snew; 
+  } else if (mars) {
+	snew = uniform_scale(0.2) *snew; 
+  } else if (jupiter) {
+	snew = uniform_scale(0.4) *snew; 
+  } else if (saturn) {
+	snew = uniform_scale(0.4) *snew; 
+  } else if (uranus) {
+	snew = uniform_scale(0.3) *snew; 
+  } else if (neptune) {
+	snew = uniform_scale(0.2) *snew; 
+  }
+  view_pos_fs_in = view * model(is_moon, animation_seconds) * snew;
+  pos_fs_in = proj * view_pos_fs_in;
+  normal_fs_in = normalize((inverse(transpose(view * model(is_moon, animation_seconds))) * snew).xyz);
+  gl_Position = pos_fs_in;
+
+  /////////////////////////////////////////////////////////////////////////////
+}
+
+
